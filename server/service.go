@@ -511,8 +511,6 @@ func (svr *Service) HandleListener(l net.Listener, internal bool) {
 				originConn.Close()
 				continue
 			}
-			fmt.Println("is tls check:", isTLS)
-			fmt.Println("tls config:", svr.tlsConfig.Certificates)
 			log.Tracef("check TLS connection success, isTLS: %v custom: %v internal: %v", isTLS, custom, internal)
 		}
 
