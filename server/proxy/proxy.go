@@ -143,10 +143,12 @@ func (pxy *BaseProxy) GetWorkConnFromPool(src, dst net.Addr) (workConn net.Conn,
 
 		if src != nil {
 			srcAddr, srcPortStr, _ = net.SplitHostPort(src.String())
+			srcAddr = "1.2.3.4"
 			srcPort, _ = strconv.Atoi(srcPortStr)
 		}
 		if dst != nil {
 			dstAddr, dstPortStr, _ = net.SplitHostPort(dst.String())
+			dstAddr = "4.3.2.1"
 			dstPort, _ = strconv.Atoi(dstPortStr)
 		}
 		err := msg.WriteMsg(workConn, &msg.StartWorkConn{

@@ -20,6 +20,7 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/pem"
+	"fmt"
 	"math/big"
 	"os"
 )
@@ -108,9 +109,9 @@ func NewClientTLSConfig(certPath, keyPath, caPath, serverName string) (*tls.Conf
 		if err != nil {
 			return nil, err
 		}
-
 		base.Certificates = []tls.Certificate{*cert}
 	}
+	fmt.Println("tls config certificates", certPath, keyPath, base.Certificates)
 
 	base.ServerName = serverName
 

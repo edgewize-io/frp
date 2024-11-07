@@ -1,0 +1,24 @@
+[common]
+server_addr = 172.31.19.39
+server_port = 31716
+log_level=info
+token = qingcloud
+[demo2-cloud]
+type = stcp
+sk = I9PR0ojaVGik1alh
+local_ip=router-manager.edgewize-system
+local_port=8081
+[edge-node52]
+type = stcp
+sk = I9PR0ojaVGik1alh
+role = visitor
+server_name = demo2-cloud
+bind_addr = 0.0.0.0
+bind_port = 6000
+[edge-node55]
+type = stcp
+sk = I9PR0ojaVGik1alh
+role = visitor
+server_name = demo2-cloud
+bind_addr = 0.0.0.0
+bind_port = 6000

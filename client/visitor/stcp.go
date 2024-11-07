@@ -79,6 +79,9 @@ func (sv *STCPVisitor) handleConn(userConn net.Conn) {
 	xl := xlog.FromContextSafe(sv.ctx)
 	defer userConn.Close()
 
+	var head msg.ConnectHead
+	_ = msg.ReadMsgInto(userConn, &head)
+
 	xl.Debugf("get a new stcp user connection")
 	visitorConn, err := sv.helper.ConnectServer()
 	if err != nil {
@@ -94,6 +97,9 @@ func (sv *STCPVisitor) handleConn(userConn net.Conn) {
 		Timestamp:      now,
 		UseEncryption:  sv.cfg.Transport.UseEncryption,
 		UseCompression: sv.cfg.Transport.UseCompression,
+	}
+	if head.ServiceName != "" {
+		newVisitorConnMsg.ProxyName = head.ServiceName
 	}
 	err = msg.WriteMsg(visitorConn, newVisitorConnMsg)
 	if err != nil {

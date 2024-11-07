@@ -25,6 +25,7 @@ type Setter interface {
 	SetLogin(*msg.Login) error
 	SetPing(*msg.Ping) error
 	SetNewWorkConn(*msg.NewWorkConn) error
+	SetCrypto(c *msg.CryptoLogin, login *msg.Login)
 }
 
 func NewAuthSetter(cfg v1.AuthClientConfig) (authProvider Setter) {
@@ -43,6 +44,7 @@ type Verifier interface {
 	VerifyLogin(*msg.Login) error
 	VerifyPing(*msg.Ping) error
 	VerifyNewWorkConn(*msg.NewWorkConn) error
+	VerifyCrypto(c *msg.CryptoLogin) *msg.Login
 }
 
 func NewAuthVerifier(cfg v1.AuthServerConfig) (authVerifier Verifier) {

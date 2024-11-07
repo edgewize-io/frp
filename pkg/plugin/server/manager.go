@@ -48,21 +48,21 @@ func (m *Manager) Register(p Plugin) {
 	if p.IsSupport(OpLogin) {
 		m.loginPlugins = append(m.loginPlugins, p)
 	}
-	if p.IsSupport(OpNewProxy) {
-		m.newProxyPlugins = append(m.newProxyPlugins, p)
-	}
-	if p.IsSupport(OpCloseProxy) {
-		m.closeProxyPlugins = append(m.closeProxyPlugins, p)
-	}
-	if p.IsSupport(OpPing) {
-		m.pingPlugins = append(m.pingPlugins, p)
-	}
-	if p.IsSupport(OpNewWorkConn) {
-		m.newWorkConnPlugins = append(m.newWorkConnPlugins, p)
-	}
-	if p.IsSupport(OpNewUserConn) {
-		m.newUserConnPlugins = append(m.newUserConnPlugins, p)
-	}
+	//if p.IsSupport(OpNewProxy) {
+	//	m.newProxyPlugins = append(m.newProxyPlugins, p)
+	//}
+	//if p.IsSupport(OpCloseProxy) {
+	//	m.closeProxyPlugins = append(m.closeProxyPlugins, p)
+	//}
+	//if p.IsSupport(OpPing) {
+	//	m.pingPlugins = append(m.pingPlugins, p)
+	//}
+	//if p.IsSupport(OpNewWorkConn) {
+	//	m.newWorkConnPlugins = append(m.newWorkConnPlugins, p)
+	//}
+	//if p.IsSupport(OpNewUserConn) {
+	//	m.newUserConnPlugins = append(m.newUserConnPlugins, p)
+	//}
 }
 
 func (m *Manager) Login(content *LoginContent) (*LoginContent, error) {

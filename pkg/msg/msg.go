@@ -20,24 +20,26 @@ import (
 )
 
 const (
-	TypeLogin              = 'o'
-	TypeLoginResp          = '1'
-	TypeNewProxy           = 'p'
-	TypeNewProxyResp       = '2'
-	TypeCloseProxy         = 'c'
-	TypeNewWorkConn        = 'w'
-	TypeReqWorkConn        = 'r'
-	TypeStartWorkConn      = 's'
-	TypeNewVisitorConn     = 'v'
-	TypeNewVisitorConnResp = '3'
-	TypePing               = 'h'
-	TypePong               = '4'
-	TypeUDPPacket          = 'u'
-	TypeNatHoleVisitor     = 'i'
-	TypeNatHoleClient      = 'n'
-	TypeNatHoleResp        = 'm'
-	TypeNatHoleSid         = '5'
-	TypeNatHoleReport      = '6'
+	TypeLogin              = 0x01
+	TypeLoginResp          = 0x02
+	TypeNewProxy           = 0x03
+	TypeNewProxyResp       = 0x04
+	TypeCloseProxy         = 0x05
+	TypeNewWorkConn        = 0x06
+	TypeReqWorkConn        = 0x07
+	TypeStartWorkConn      = 0x08
+	TypeNewVisitorConn     = 0x09
+	TypeNewVisitorConnResp = 0x0a
+	TypePing               = 0x0b
+	TypePong               = 0x0c
+	TypeUDPPacket          = 0x0d
+	TypeNatHoleVisitor     = 0x0e
+	TypeNatHoleClient      = 0x10
+	TypeNatHoleResp        = 0x11
+	TypeNatHoleSid         = 0x12
+	TypeNatHoleReport      = 0x0f
+	TypeConnHead           = 0x13
+	TypeCryptoLogin        = 0xf8
 )
 
 var msgTypeMap = map[byte]interface{}{
@@ -59,6 +61,8 @@ var msgTypeMap = map[byte]interface{}{
 	TypeNatHoleResp:        NatHoleResp{},
 	TypeNatHoleSid:         NatHoleSid{},
 	TypeNatHoleReport:      NatHoleReport{},
+	TypeConnHead:           ConnectHead{},
+	TypeCryptoLogin:        CryptoLogin{},
 }
 
 var TypeNameNatHoleResp = reflect.TypeOf(&NatHoleResp{}).Elem().Name()
@@ -69,32 +73,38 @@ type ClientSpec struct {
 	// Optional values: ssh-tunnel
 	Type string `json:"type,omitempty"`
 	// If the value is true, the client will not require authentication.
-	AlwaysAuthPass bool `json:"always_auth_pass,omitempty"`
+	AlwaysAuthPass bool `json:"auth_type,omitempty"`
+}
+
+type CryptoLogin struct {
+	TimeStamp int64  `json:"time_stamp,omitempty"`
+	Auth      string `json:"auth"`
+	Sign      string `json:"sign,omitempty"`
 }
 
 // When frpc start, client send this message to login to server.
 type Login struct {
-	Version      string            `json:"version,omitempty"`
-	Hostname     string            `json:"hostname,omitempty"`
-	Os           string            `json:"os,omitempty"`
-	Arch         string            `json:"arch,omitempty"`
-	User         string            `json:"user,omitempty"`
-	PrivilegeKey string            `json:"privilege_key,omitempty"`
-	Timestamp    int64             `json:"timestamp,omitempty"`
-	RunID        string            `json:"run_id,omitempty"`
-	Metas        map[string]string `json:"metas,omitempty"`
+	Version      string            `json:"tag,omitempty"`
+	Hostname     string            `json:"path,omitempty"`
+	Os           string            `json:"system,omitempty"`
+	Arch         string            `json:"types,omitempty"`
+	User         string            `json:"people,omitempty"`
+	PrivilegeKey string            `json:"identify,omitempty"`
+	Timestamp    int64             `json:"time_second,omitempty"`
+	RunID        string            `json:"self_id,omitempty"`
+	Metas        map[string]string `json:"data_bucket,omitempty"`
 
 	// Currently only effective for VirtualClient.
-	ClientSpec ClientSpec `json:"client_spec,omitempty"`
+	ClientSpec ClientSpec `json:"other_data,omitempty"`
 
 	// Some global configures.
-	PoolCount int `json:"pool_count,omitempty"`
+	PoolCount int `json:"count,omitempty"`
 }
 
 type LoginResp struct {
-	Version string `json:"version,omitempty"`
-	RunID   string `json:"run_id,omitempty"`
-	Error   string `json:"error,omitempty"`
+	Version string `json:"tag,omitempty"`
+	RunID   string `json:"self_id,omitempty"`
+	Error   string `json:"error_msg,omitempty"`
 }
 
 // When frpc login success, send this message to frps for running a new proxy.
@@ -160,17 +170,17 @@ type StartWorkConn struct {
 }
 
 type NewVisitorConn struct {
-	RunID          string `json:"run_id,omitempty"`
-	ProxyName      string `json:"proxy_name,omitempty"`
-	SignKey        string `json:"sign_key,omitempty"`
-	Timestamp      int64  `json:"timestamp,omitempty"`
-	UseEncryption  bool   `json:"use_encryption,omitempty"`
-	UseCompression bool   `json:"use_compression,omitempty"`
+	RunID          string `json:"dog_name,omitempty"`
+	ProxyName      string `json:"cat_name,omitempty"`
+	SignKey        string `json:"elephant_name,omitempty"`
+	Timestamp      int64  `json:"duck_name,omitempty"`
+	UseEncryption  bool   `json:"monkey_name,omitempty"`
+	UseCompression bool   `json:"snake_name,omitempty"`
 }
 
 type NewVisitorConnResp struct {
-	ProxyName string `json:"proxy_name,omitempty"`
-	Error     string `json:"error,omitempty"`
+	ProxyName string `json:"panda_name,omitempty"`
+	Error     string `json:"something,omitempty"`
 }
 
 type Ping struct {
@@ -243,4 +253,8 @@ type NatHoleSid struct {
 type NatHoleReport struct {
 	Sid     string `json:"sid,omitempty"`
 	Success bool   `json:"success,omitempty"`
+}
+
+type ConnectHead struct {
+	ServiceName string `json:"serviceName"`
 }

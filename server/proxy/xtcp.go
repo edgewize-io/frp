@@ -16,8 +16,6 @@ package proxy
 
 import (
 	"fmt"
-	"reflect"
-
 	"github.com/fatedier/golib/errors"
 
 	v1 "github.com/fatedier/frp/pkg/config/v1"
@@ -25,7 +23,7 @@ import (
 )
 
 func init() {
-	RegisterProxyFactory(reflect.TypeOf(&v1.XTCPProxyConfig{}), NewXTCPProxy)
+	//RegisterProxyFactory(reflect.TypeOf(&v1.XTCPProxyConfig{}), NewXTCPProxy)
 }
 
 type XTCPProxy struct {

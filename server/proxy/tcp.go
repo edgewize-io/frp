@@ -17,14 +17,13 @@ package proxy
 import (
 	"fmt"
 	"net"
-	"reflect"
 	"strconv"
 
 	v1 "github.com/fatedier/frp/pkg/config/v1"
 )
 
 func init() {
-	RegisterProxyFactory(reflect.TypeOf(&v1.TCPProxyConfig{}), NewTCPProxy)
+	//RegisterProxyFactory(reflect.TypeOf(&v1.TCPProxyConfig{}), NewTCPProxy)
 }
 
 type TCPProxy struct {

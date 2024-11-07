@@ -34,7 +34,6 @@ import (
 	httppkg "github.com/fatedier/frp/pkg/util/http"
 	"github.com/fatedier/frp/pkg/util/log"
 	netpkg "github.com/fatedier/frp/pkg/util/net"
-	"github.com/fatedier/frp/pkg/util/version"
 	"github.com/fatedier/frp/pkg/util/wait"
 	"github.com/fatedier/frp/pkg/util/xlog"
 )
@@ -249,7 +248,7 @@ func (svr *Service) login() (conn net.Conn, connector Connector, err error) {
 		Os:        runtime.GOOS,
 		PoolCount: svr.common.Transport.PoolCount,
 		User:      svr.common.User,
-		Version:   version.Full(),
+		Version:   "edgewize-msg-transport-v1",
 		Timestamp: time.Now().Unix(),
 		RunID:     svr.runID,
 		Metas:     svr.common.Metadatas,
@@ -262,8 +261,10 @@ func (svr *Service) login() (conn net.Conn, connector Connector, err error) {
 	if err = svr.authSetter.SetLogin(loginMsg); err != nil {
 		return
 	}
+	var cryp = new(msg.CryptoLogin)
+	svr.authSetter.SetCrypto(cryp, loginMsg)
 
-	if err = msg.WriteMsg(conn, loginMsg); err != nil {
+	if err = msg.WriteMsg(conn, cryp); err != nil {
 		return
 	}
 

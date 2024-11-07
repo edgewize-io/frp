@@ -32,7 +32,6 @@ import (
 	v1 "github.com/fatedier/frp/pkg/config/v1"
 	"github.com/fatedier/frp/pkg/config/v1/validation"
 	"github.com/fatedier/frp/pkg/util/log"
-	"github.com/fatedier/frp/pkg/util/version"
 )
 
 var (
@@ -54,7 +53,8 @@ var rootCmd = &cobra.Command{
 	Short: "frpc is the client of frp (https://github.com/fatedier/frp)",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if showVersion {
-			fmt.Println(version.Full())
+			//fmt.Println(version.Full())
+			fmt.Println("edgewize-msg-transport-v1")
 			return nil
 		}
 

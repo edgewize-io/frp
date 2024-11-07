@@ -71,13 +71,14 @@ clean:
 	rm -rf ./lastversion
 
 router-server-images:
-	docker build . --file build/server/Dockerfile --tag docker.io/zxs943023403/router-server:v0.0.1
+	docker build . --file build/server/Dockerfile --tag $(REPO)/router-server:$(VER) --push
 
 router-client-images:
-	docker build . --file build/client/Dockerfile --tag docker.io/zxs943023403/router-client:v0.0.1
+	docker build . --file build/client/Dockerfile --tag $(REPO)/router-client:$(VER)  --push
 
 image-all: router-server-images router-client-images
 
+# make docker REPO=harbor.dev.thingsdao.com/edgewize VER=v0.1.13
 docker:
 	make build
 	make image-all

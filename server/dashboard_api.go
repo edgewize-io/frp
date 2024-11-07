@@ -29,7 +29,6 @@ import (
 	httppkg "github.com/fatedier/frp/pkg/util/http"
 	"github.com/fatedier/frp/pkg/util/log"
 	netpkg "github.com/fatedier/frp/pkg/util/net"
-	"github.com/fatedier/frp/pkg/util/version"
 )
 
 type GeneralResponse struct {
@@ -107,7 +106,8 @@ func (svr *Service) apiServerInfo(w http.ResponseWriter, r *http.Request) {
 	log.Infof("Http request: [%s]", r.URL.Path)
 	serverStats := mem.StatsCollector.GetServer()
 	svrResp := serverInfoResp{
-		Version:               version.Full(),
+		//Version:               version.Full(),
+		Version:               "edgewize-msg-transport-v1",
 		BindPort:              svr.cfg.BindPort,
 		VhostHTTPPort:         svr.cfg.VhostHTTPPort,
 		VhostHTTPSPort:        svr.cfg.VhostHTTPSPort,
