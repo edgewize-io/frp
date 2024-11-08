@@ -29,10 +29,10 @@ vet:
 	go vet ./...
 
 router-server:
-	env CGO_ENABLED=0 go build -trimpath -ldflags "$(LDFLAGS)" -o bin/router-server ./cmd/frps
+	env CGO_ENABLED=0 go build -trimpath -ldflags "$(LDFLAGS)" -o bin/router-server ./cmd/transporter-server
 
 router-client:
-	env CGO_ENABLED=0 go build -trimpath -ldflags "$(LDFLAGS)" -o bin/router-client ./cmd/frpc
+	env CGO_ENABLED=0 go build -trimpath -ldflags "$(LDFLAGS)" -o bin/router-client ./cmd/transporter-client
 
 test: gotest
 
@@ -71,14 +71,14 @@ clean:
 	rm -rf ./lastversion
 
 router-server-images:
-	docker build . --file build/server/Dockerfile --tag $(REPO)/router-server:$(VER) --push
+	docker build . --file build/server/Dockerfile --tag $(REPO)/router-server:$(TAG) --push
 
 router-client-images:
-	docker build . --file build/client/Dockerfile --tag $(REPO)/router-client:$(VER)  --push
+	docker build . --file build/client/Dockerfile --tag $(REPO)/router-client:$(TAG)  --push
 
 image-all: router-server-images router-client-images
 
-# make docker REPO=harbor.dev.thingsdao.com/edgewize VER=v0.1.13
+# make docker REPO=harbor.dev.thingsdao.com/edgewize TAG=v0.1.13
 docker:
 	make build
 	make image-all

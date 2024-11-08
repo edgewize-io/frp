@@ -1,13 +1,15 @@
 package msg
 
 const (
-	TypeConnHead    = 's'
-	TypeCryptoLogin = 't'
+	TypeConnHead    = '~'
+	TypeCryptoLogin = '!'
 )
 
 func init() {
 	msgTypeMap[TypeConnHead] = ConnectHead{}
 	msgTypeMap[TypeCryptoLogin] = CryptoLogin{}
+	msgCtl.RegisterMsg(TypeConnHead, ConnectHead{})
+	msgCtl.RegisterMsg(TypeCryptoLogin, CryptoLogin{})
 }
 
 type CryptoLogin struct {
@@ -17,5 +19,5 @@ type CryptoLogin struct {
 }
 
 type ConnectHead struct {
-	ServiceName string `json:"serviceName"`
+	ServiceName string `json:"service_name"`
 }
