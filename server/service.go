@@ -45,6 +45,7 @@ import (
 	netpkg "github.com/fatedier/frp/pkg/util/net"
 	"github.com/fatedier/frp/pkg/util/tcpmux"
 	"github.com/fatedier/frp/pkg/util/util"
+	"github.com/fatedier/frp/pkg/util/version"
 	"github.com/fatedier/frp/pkg/util/vhost"
 	"github.com/fatedier/frp/pkg/util/xlog"
 	"github.com/fatedier/frp/server/controller"
@@ -432,6 +433,7 @@ func (svr *Service) handleConnection(ctx context.Context, conn net.Conn, interna
 	_ = conn.SetReadDeadline(time.Time{})
 
 	switch m := rawMsg.(type) {
+	// 修改接入流程。需要先读出登录的加密信息，然后解密得到登录的完整信息，最后才能按照原登录逻辑处理
 	case *msg.CryptoLogin:
 		login := svr.authVerifier.VerifyCrypto(m)
 		if login == nil {
@@ -454,15 +456,15 @@ func (svr *Service) handleConnection(ctx context.Context, conn net.Conn, interna
 		if err != nil {
 			xl.Warnf("register control error: %v", err)
 			_ = msg.WriteMsg(conn, &msg.LoginResp{
-				//Version: version.Full(),
-				Version: "edgewize-msg-transport-v1",
+				Version: version.Full(),
 				Error:   util.GenerateResponseErrorString("register control error", err, lo.FromPtr(svr.cfg.DetailedErrorsToClient)),
 			})
 			conn.Close()
 		}
 	case *msg.Login:
+		// 禁止原生frp接入，不接受直接的登录信息输入
 		// server plugin hook
-		log.Warnf("有人使用原生FRP登录！")
+		log.Warnf("Error message type for the new connection [%s]", conn.RemoteAddr().String())
 		conn.Close()
 	case *msg.NewWorkConn:
 		if err := svr.RegisterWorkConn(conn, m); err != nil {
