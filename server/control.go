@@ -17,6 +17,7 @@ package server
 import (
 	"context"
 	"fmt"
+	"github.com/fatedier/frp/pkg/util/version"
 	"net"
 	"runtime/debug"
 	"sync"
@@ -201,8 +202,7 @@ func NewControl(
 // Start send a login success message to client and start working.
 func (ctl *Control) Start() {
 	loginRespMsg := &msg.LoginResp{
-		//Version: version.Full(),
-		Version: "edgewize-msg-transport-v1",
+		Version: version.Full(),
 		RunID:   ctl.runID,
 		Error:   "",
 	}

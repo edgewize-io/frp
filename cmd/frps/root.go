@@ -107,7 +107,7 @@ func runServer(cfg *v1.ServerConfig) (err error) {
 		log.Infof("frps uses command line arguments for config")
 	}
 
-	svr, err := server.NewService(cfg)
+	svr, err := server.NewEdgewizeService(cfg)
 	if err != nil {
 		return err
 	}

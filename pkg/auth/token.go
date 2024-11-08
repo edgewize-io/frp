@@ -15,11 +15,8 @@
 package auth
 
 import (
-	"encoding/hex"
-	"encoding/json"
 	"fmt"
 	"slices"
-	"strconv"
 	"time"
 
 	v1 "github.com/fatedier/frp/pkg/config/v1"
@@ -91,26 +88,4 @@ func (auth *TokenAuthSetterVerifier) VerifyNewWorkConn(m *msg.NewWorkConn) error
 		return fmt.Errorf("token in NewWorkConn doesn't match token from configuration")
 	}
 	return nil
-}
-
-func (auth *TokenAuthSetterVerifier) SetCrypto(c *msg.CryptoLogin, login *msg.Login) {
-	bs, _ := json.Marshal(login)
-	key := util.GenerateAesKey(auth.token)[:8]
-	iv := util.GenerateAesKey(strconv.FormatInt(c.TimeStamp, 16))[:8]
-	c.Auth = util.RandomString(16)
-	c.Sign = hex.EncodeToString(util.Encrypt(string(bs), key, []byte(iv)))
-}
-
-func (auth *TokenAuthSetterVerifier) VerifyCrypto(c *msg.CryptoLogin) *msg.Login {
-	var login msg.Login
-	bs, err := hex.DecodeString(c.Sign)
-	if err != nil {
-		fmt.Println("verify crypto error,", err)
-		return nil
-	}
-	key := util.GenerateAesKey(auth.token)[:8]
-	iv := util.GenerateAesKey(strconv.FormatInt(c.TimeStamp, 16))[:8]
-	before := util.Decrypt(bs, key, []byte(iv))
-	_ = json.Unmarshal(before, &login)
-	return &login
 }

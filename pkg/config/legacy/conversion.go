@@ -57,10 +57,8 @@ func Convert_ClientCommonConf_To_v1(conf *ClientCommonConf) *v1.ClientCommonConf
 	out.Transport.QUIC.KeepalivePeriod = conf.QUICKeepalivePeriod
 	out.Transport.QUIC.MaxIdleTimeout = conf.QUICMaxIdleTimeout
 	out.Transport.QUIC.MaxIncomingStreams = conf.QUICMaxIncomingStreams
-	// 强制开启tls
-	out.Transport.TLS.Enable = lo.ToPtr(true)
-	// 强制启用TLS头字符
-	out.Transport.TLS.DisableCustomTLSFirstByte = lo.ToPtr(false)
+	out.Transport.TLS.Enable = lo.ToPtr(conf.TLSEnable)
+	out.Transport.TLS.DisableCustomTLSFirstByte = lo.ToPtr(conf.DisableCustomTLSFirstByte)
 	out.Transport.TLS.TLSConfig.CertFile = conf.TLSCertFile
 	out.Transport.TLS.TLSConfig.KeyFile = conf.TLSKeyFile
 	out.Transport.TLS.TLSConfig.TrustedCaFile = conf.TLSTrustedCaFile
@@ -71,9 +69,8 @@ func Convert_ClientCommonConf_To_v1(conf *ClientCommonConf) *v1.ClientCommonConf
 	out.Log.MaxDays = conf.LogMaxDays
 	out.Log.DisablePrintColor = conf.DisableLogColor
 
-	// 强制开启只监听本地端口的web server
-	out.WebServer.Addr = "127.0.0.1"
-	out.WebServer.Port = 2333
+	out.WebServer.Addr = conf.AdminAddr
+	out.WebServer.Port = conf.AdminPort
 	out.WebServer.User = conf.AdminUser
 	out.WebServer.Password = conf.AdminPwd
 	out.WebServer.AssetsDir = conf.AssetsDir

@@ -17,6 +17,7 @@ package server
 import (
 	"cmp"
 	"encoding/json"
+	"github.com/fatedier/frp/pkg/util/version"
 	"net/http"
 	"slices"
 
@@ -106,8 +107,7 @@ func (svr *Service) apiServerInfo(w http.ResponseWriter, r *http.Request) {
 	log.Infof("Http request: [%s]", r.URL.Path)
 	serverStats := mem.StatsCollector.GetServer()
 	svrResp := serverInfoResp{
-		//Version:               version.Full(),
-		Version:               "edgewize-msg-transport-v1",
+		Version:               version.Full(),
 		BindPort:              svr.cfg.BindPort,
 		VhostHTTPPort:         svr.cfg.VhostHTTPPort,
 		VhostHTTPSPort:        svr.cfg.VhostHTTPSPort,

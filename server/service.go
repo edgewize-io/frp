@@ -15,12 +15,17 @@
 package server
 
 import (
+	"bytes"
 	"context"
 	"crypto/tls"
 	"fmt"
+	"github.com/fatedier/frp/pkg/nathole"
+	"github.com/fatedier/frp/server/group"
+	"github.com/fatedier/frp/server/ports"
 	"github.com/fatedier/frp/server/visitor"
 	"io"
 	"net"
+	"net/http"
 	"os"
 	"strconv"
 	"time"
@@ -150,16 +155,16 @@ func NewService(cfg *v1.ServerConfig) (*Service, error) {
 		pluginManager: plugin.NewManager(),
 		rc: &controller.ResourceController{
 			VisitorManager: visitor.NewManager(),
-			//TCPPortManager: ports.NewManager("tcp", cfg.ProxyBindAddr, cfg.AllowPorts),
-			//UDPPortManager: ports.NewManager("udp", cfg.ProxyBindAddr, cfg.AllowPorts),
+			TCPPortManager: ports.NewManager("tcp", cfg.ProxyBindAddr, cfg.AllowPorts),
+			UDPPortManager: ports.NewManager("udp", cfg.ProxyBindAddr, cfg.AllowPorts),
 		},
-		//sshTunnelListener: netpkg.NewInternalListener(),
-		//httpVhostRouter:   vhost.NewRouters(),
-		authVerifier: auth.NewAuthVerifier(cfg.Auth),
-		//webServer:    webServer,
-		tlsConfig: tlsConfig,
-		cfg:       cfg,
-		ctx:       context.Background(),
+		sshTunnelListener: netpkg.NewInternalListener(),
+		httpVhostRouter:   vhost.NewRouters(),
+		authVerifier:      auth.NewAuthVerifier(cfg.Auth),
+		webServer:         webServer,
+		tlsConfig:         tlsConfig,
+		cfg:               cfg,
+		ctx:               context.Background(),
 	}
 	if webServer != nil {
 		webServer.RouteRegister(svr.registerRouteHandlers)
@@ -189,29 +194,29 @@ func NewService(cfg *v1.ServerConfig) (*Service, error) {
 	svr.rc.PluginManager = svr.pluginManager
 
 	// Init group controller
-	//svr.rc.TCPGroupCtl = group.NewTCPGroupCtl(svr.rc.TCPPortManager)
+	svr.rc.TCPGroupCtl = group.NewTCPGroupCtl(svr.rc.TCPPortManager)
 
 	// Init HTTP group controller
-	//svr.rc.HTTPGroupCtl = group.NewHTTPGroupController(svr.httpVhostRouter)
+	svr.rc.HTTPGroupCtl = group.NewHTTPGroupController(svr.httpVhostRouter)
 
 	// Init TCP mux group controller
-	//svr.rc.TCPMuxGroupCtl = group.NewTCPMuxGroupCtl(svr.rc.TCPMuxHTTPConnectMuxer)
+	svr.rc.TCPMuxGroupCtl = group.NewTCPMuxGroupCtl(svr.rc.TCPMuxHTTPConnectMuxer)
 
 	// Init 404 not found page
-	//vhost.NotFoundPagePath = cfg.Custom404Page
+	vhost.NotFoundPagePath = cfg.Custom404Page
 
-	//var (
-	//	httpMuxOn  bool
-	//	httpsMuxOn bool
-	//)
-	//if cfg.BindAddr == cfg.ProxyBindAddr {
-	//	if cfg.BindPort == cfg.VhostHTTPPort {
-	//		httpMuxOn = true
-	//	}
-	//	if cfg.BindPort == cfg.VhostHTTPSPort {
-	//		httpsMuxOn = true
-	//	}
-	//}
+	var (
+		httpMuxOn  bool
+		httpsMuxOn bool
+	)
+	if cfg.BindAddr == cfg.ProxyBindAddr {
+		if cfg.BindPort == cfg.VhostHTTPPort {
+			httpMuxOn = true
+		}
+		if cfg.BindPort == cfg.VhostHTTPSPort {
+			httpsMuxOn = true
+		}
+	}
 
 	// Listen for accepting connections from client.
 	address := net.JoinHostPort(cfg.BindAddr, strconv.Itoa(cfg.BindPort))
@@ -232,105 +237,105 @@ func NewService(cfg *v1.ServerConfig) (*Service, error) {
 
 	// Listen for accepting connections from client using kcp protocol.
 	if cfg.KCPBindPort > 0 {
-		//address := net.JoinHostPort(cfg.BindAddr, strconv.Itoa(cfg.KCPBindPort))
-		//svr.kcpListener, err = netpkg.ListenKcp(address)
-		//if err != nil {
-		//	return nil, fmt.Errorf("listen on kcp udp address %s error: %v", address, err)
-		//}
-		//log.Infof("frps kcp listen on udp %s", address)
+		address := net.JoinHostPort(cfg.BindAddr, strconv.Itoa(cfg.KCPBindPort))
+		svr.kcpListener, err = netpkg.ListenKcp(address)
+		if err != nil {
+			return nil, fmt.Errorf("listen on kcp udp address %s error: %v", address, err)
+		}
+		log.Infof("frps kcp listen on udp %s", address)
 	}
 
 	if cfg.QUICBindPort > 0 {
-		//address := net.JoinHostPort(cfg.BindAddr, strconv.Itoa(cfg.QUICBindPort))
-		//quicTLSCfg := tlsConfig.Clone()
-		//quicTLSCfg.NextProtos = []string{"frp"}
-		//svr.quicListener, err = quic.ListenAddr(address, quicTLSCfg, &quic.Config{
-		//	MaxIdleTimeout:     time.Duration(cfg.Transport.QUIC.MaxIdleTimeout) * time.Second,
-		//	MaxIncomingStreams: int64(cfg.Transport.QUIC.MaxIncomingStreams),
-		//	KeepAlivePeriod:    time.Duration(cfg.Transport.QUIC.KeepalivePeriod) * time.Second,
-		//})
-		//if err != nil {
-		//	return nil, fmt.Errorf("listen on quic udp address %s error: %v", address, err)
-		//}
-		//log.Infof("frps quic listen on %s", address)
+		address := net.JoinHostPort(cfg.BindAddr, strconv.Itoa(cfg.QUICBindPort))
+		quicTLSCfg := tlsConfig.Clone()
+		quicTLSCfg.NextProtos = []string{"frp"}
+		svr.quicListener, err = quic.ListenAddr(address, quicTLSCfg, &quic.Config{
+			MaxIdleTimeout:     time.Duration(cfg.Transport.QUIC.MaxIdleTimeout) * time.Second,
+			MaxIncomingStreams: int64(cfg.Transport.QUIC.MaxIncomingStreams),
+			KeepAlivePeriod:    time.Duration(cfg.Transport.QUIC.KeepalivePeriod) * time.Second,
+		})
+		if err != nil {
+			return nil, fmt.Errorf("listen on quic udp address %s error: %v", address, err)
+		}
+		log.Infof("frps quic listen on %s", address)
 	}
 
-	//if cfg.SSHTunnelGateway.BindPort > 0 {
-	//	sshGateway, err := ssh.NewGateway(cfg.SSHTunnelGateway, cfg.ProxyBindAddr, svr.sshTunnelListener)
-	//	if err != nil {
-	//		return nil, fmt.Errorf("create ssh gateway error: %v", err)
-	//	}
-	//	svr.sshTunnelGateway = sshGateway
-	//	log.Infof("frps sshTunnelGateway listen on port %d", cfg.SSHTunnelGateway.BindPort)
-	//}
+	if cfg.SSHTunnelGateway.BindPort > 0 {
+		sshGateway, err := ssh.NewGateway(cfg.SSHTunnelGateway, cfg.ProxyBindAddr, svr.sshTunnelListener)
+		if err != nil {
+			return nil, fmt.Errorf("create ssh gateway error: %v", err)
+		}
+		svr.sshTunnelGateway = sshGateway
+		log.Infof("frps sshTunnelGateway listen on port %d", cfg.SSHTunnelGateway.BindPort)
+	}
 
 	// Listen for accepting connections from client using websocket protocol.
-	//websocketPrefix := []byte("GET " + netpkg.FrpWebsocketPath)
-	//websocketLn := svr.muxer.Listen(0, uint32(len(websocketPrefix)), func(data []byte) bool {
-	//	return bytes.Equal(data, websocketPrefix)
-	//})
-	//svr.websocketListener = netpkg.NewWebsocketListener(websocketLn)
+	websocketPrefix := []byte("GET " + netpkg.FrpWebsocketPath)
+	websocketLn := svr.muxer.Listen(0, uint32(len(websocketPrefix)), func(data []byte) bool {
+		return bytes.Equal(data, websocketPrefix)
+	})
+	svr.websocketListener = netpkg.NewWebsocketListener(websocketLn)
 
 	// Create http vhost muxer.
 	if cfg.VhostHTTPPort > 0 {
-		//rp := vhost.NewHTTPReverseProxy(vhost.HTTPReverseProxyOptions{
-		//	ResponseHeaderTimeoutS: cfg.VhostHTTPTimeout,
-		//}, svr.httpVhostRouter)
-		//svr.rc.HTTPReverseProxy = rp
-		//
-		//address := net.JoinHostPort(cfg.ProxyBindAddr, strconv.Itoa(cfg.VhostHTTPPort))
-		//server := &http.Server{
-		//	Addr:              address,
-		//	Handler:           rp,
-		//	ReadHeaderTimeout: 60 * time.Second,
-		//}
-		//var l net.Listener
-		//if httpMuxOn {
-		//	l = svr.muxer.ListenHTTP(1)
-		//} else {
-		//	l, err = net.Listen("tcp", address)
-		//	if err != nil {
-		//		return nil, fmt.Errorf("create vhost http listener error, %v", err)
-		//	}
-		//}
-		//go func() {
-		//	_ = server.Serve(l)
-		//}()
-		//log.Infof("http service listen on %s", address)
+		rp := vhost.NewHTTPReverseProxy(vhost.HTTPReverseProxyOptions{
+			ResponseHeaderTimeoutS: cfg.VhostHTTPTimeout,
+		}, svr.httpVhostRouter)
+		svr.rc.HTTPReverseProxy = rp
+
+		address := net.JoinHostPort(cfg.ProxyBindAddr, strconv.Itoa(cfg.VhostHTTPPort))
+		server := &http.Server{
+			Addr:              address,
+			Handler:           rp,
+			ReadHeaderTimeout: 60 * time.Second,
+		}
+		var l net.Listener
+		if httpMuxOn {
+			l = svr.muxer.ListenHTTP(1)
+		} else {
+			l, err = net.Listen("tcp", address)
+			if err != nil {
+				return nil, fmt.Errorf("create vhost http listener error, %v", err)
+			}
+		}
+		go func() {
+			_ = server.Serve(l)
+		}()
+		log.Infof("http service listen on %s", address)
 	}
 
 	// Create https vhost muxer.
 	if cfg.VhostHTTPSPort > 0 {
-		//var l net.Listener
-		//if httpsMuxOn {
-		//	l = svr.muxer.ListenHTTPS(1)
-		//} else {
-		//	address := net.JoinHostPort(cfg.ProxyBindAddr, strconv.Itoa(cfg.VhostHTTPSPort))
-		//	l, err = net.Listen("tcp", address)
-		//	if err != nil {
-		//		return nil, fmt.Errorf("create server listener error, %v", err)
-		//	}
-		//	log.Infof("https service listen on %s", address)
-		//}
+		var l net.Listener
+		if httpsMuxOn {
+			l = svr.muxer.ListenHTTPS(1)
+		} else {
+			address := net.JoinHostPort(cfg.ProxyBindAddr, strconv.Itoa(cfg.VhostHTTPSPort))
+			l, err = net.Listen("tcp", address)
+			if err != nil {
+				return nil, fmt.Errorf("create server listener error, %v", err)
+			}
+			log.Infof("https service listen on %s", address)
+		}
 
-		//svr.rc.VhostHTTPSMuxer, err = vhost.NewHTTPSMuxer(l, vhostReadWriteTimeout)
-		//if err != nil {
-		//	return nil, fmt.Errorf("create vhost httpsMuxer error, %v", err)
-		//}
+		svr.rc.VhostHTTPSMuxer, err = vhost.NewHTTPSMuxer(l, vhostReadWriteTimeout)
+		if err != nil {
+			return nil, fmt.Errorf("create vhost httpsMuxer error, %v", err)
+		}
 	}
 
 	// frp tls listener
-	svr.tlsListener = svr.muxer.Listen(2, uint32(len(netpkg.FRPTLSHeadByte)), func(data []byte) bool {
+	svr.tlsListener = svr.muxer.Listen(2, 1, func(data []byte) bool {
 		// tls first byte can be 0x16 only when vhost https port is not same with bind port
-		return netpkg.BytesEqual(data, netpkg.FRPTLSHeadByte) //|| int(data[0]) == 0x16 取消对原版FRPC的TLS兼容
+		return int(data[0]) == netpkg.FRPTLSHeadByte || int(data[0]) == 0x16
 	})
 
 	// Create nat hole controller.
-	//nc, err := nathole.NewController(time.Duration(cfg.NatHoleAnalysisDataReserveHours) * time.Hour)
-	//if err != nil {
-	//	return nil, fmt.Errorf("create nat hole controller error, %v", err)
-	//}
-	//svr.rc.NatHoleController = nc
+	nc, err := nathole.NewController(time.Duration(cfg.NatHoleAnalysisDataReserveHours) * time.Hour)
+	if err != nil {
+		return nil, fmt.Errorf("create nat hole controller error, %v", err)
+	}
+	svr.rc.NatHoleController = nc
 	return svr, nil
 }
 

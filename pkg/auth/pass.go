@@ -24,10 +24,6 @@ var _ Verifier = &alwaysPass{}
 
 type alwaysPass struct{}
 
-func (p *alwaysPass) VerifyCrypto(c *msg.CryptoLogin) *msg.Login {
-	return nil
-}
-
 func (*alwaysPass) VerifyLogin(*msg.Login) error { return nil }
 
 func (*alwaysPass) VerifyPing(*msg.Ping) error { return nil }

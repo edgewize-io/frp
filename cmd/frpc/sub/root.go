@@ -17,6 +17,7 @@ package sub
 import (
 	"context"
 	"fmt"
+	"github.com/fatedier/frp/pkg/util/version"
 	"io/fs"
 	"os"
 	"os/signal"
@@ -53,8 +54,7 @@ var rootCmd = &cobra.Command{
 	Short: "frpc is the client of frp (https://github.com/fatedier/frp)",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if showVersion {
-			//fmt.Println(version.Full())
-			fmt.Println("edgewize-msg-transport-v1")
+			fmt.Println(version.Full())
 			return nil
 		}
 

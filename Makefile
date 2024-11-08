@@ -29,10 +29,10 @@ vet:
 	go vet ./...
 
 router-server:
-	env CGO_ENABLED=0 go build -trimpath -ldflags "$(LDFLAGS)" -o bin/router-server ./cmd/router-server
+	env CGO_ENABLED=0 go build -trimpath -ldflags "$(LDFLAGS)" -o bin/router-server ./cmd/frps
 
 router-client:
-	env CGO_ENABLED=0 go build -trimpath -ldflags "$(LDFLAGS)" -o bin/router-client ./cmd/router-client
+	env CGO_ENABLED=0 go build -trimpath -ldflags "$(LDFLAGS)" -o bin/router-client ./cmd/frpc
 
 test: gotest
 
