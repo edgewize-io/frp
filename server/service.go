@@ -19,10 +19,6 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
-	"github.com/fatedier/frp/pkg/nathole"
-	"github.com/fatedier/frp/server/group"
-	"github.com/fatedier/frp/server/ports"
-	"github.com/fatedier/frp/server/visitor"
 	"io"
 	"net"
 	"net/http"
@@ -40,6 +36,7 @@ import (
 	v1 "github.com/fatedier/frp/pkg/config/v1"
 	modelmetrics "github.com/fatedier/frp/pkg/metrics"
 	"github.com/fatedier/frp/pkg/msg"
+	"github.com/fatedier/frp/pkg/nathole"
 	plugin "github.com/fatedier/frp/pkg/plugin/server"
 	"github.com/fatedier/frp/pkg/ssh"
 	"github.com/fatedier/frp/pkg/transport"
@@ -51,8 +48,11 @@ import (
 	"github.com/fatedier/frp/pkg/util/vhost"
 	"github.com/fatedier/frp/pkg/util/xlog"
 	"github.com/fatedier/frp/server/controller"
+	"github.com/fatedier/frp/server/group"
 	"github.com/fatedier/frp/server/metrics"
+	"github.com/fatedier/frp/server/ports"
 	"github.com/fatedier/frp/server/proxy"
+	"github.com/fatedier/frp/server/visitor"
 )
 
 const (

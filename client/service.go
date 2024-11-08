@@ -18,6 +18,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/fatedier/frp/pkg/util/version"
 	"net"
 	"os"
 	"runtime"
@@ -248,7 +249,7 @@ func (svr *Service) login() (conn net.Conn, connector Connector, err error) {
 		Os:        runtime.GOOS,
 		PoolCount: svr.common.Transport.PoolCount,
 		User:      svr.common.User,
-		Version:   "edgewize-msg-transport-v1",
+		Version:   version.Full(),
 		Timestamp: time.Now().Unix(),
 		RunID:     svr.runID,
 		Metas:     svr.common.Metadatas,

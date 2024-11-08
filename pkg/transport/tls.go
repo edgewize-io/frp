@@ -108,6 +108,7 @@ func NewClientTLSConfig(certPath, keyPath, caPath, serverName string) (*tls.Conf
 		if err != nil {
 			return nil, err
 		}
+
 		base.Certificates = []tls.Certificate{*cert}
 	}
 

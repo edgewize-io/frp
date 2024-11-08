@@ -17,7 +17,6 @@ package server
 import (
 	"context"
 	"fmt"
-	"github.com/fatedier/frp/pkg/util/version"
 	"net"
 	"runtime/debug"
 	"sync"
@@ -35,6 +34,7 @@ import (
 	"github.com/fatedier/frp/pkg/transport"
 	netpkg "github.com/fatedier/frp/pkg/util/net"
 	"github.com/fatedier/frp/pkg/util/util"
+	"github.com/fatedier/frp/pkg/util/version"
 	"github.com/fatedier/frp/pkg/util/wait"
 	"github.com/fatedier/frp/pkg/util/xlog"
 	"github.com/fatedier/frp/server/controller"

@@ -17,7 +17,6 @@ package server
 import (
 	"cmp"
 	"encoding/json"
-	"github.com/fatedier/frp/pkg/util/version"
 	"net/http"
 	"slices"
 
@@ -30,6 +29,7 @@ import (
 	httppkg "github.com/fatedier/frp/pkg/util/http"
 	"github.com/fatedier/frp/pkg/util/log"
 	netpkg "github.com/fatedier/frp/pkg/util/net"
+	"github.com/fatedier/frp/pkg/util/version"
 )
 
 type GeneralResponse struct {

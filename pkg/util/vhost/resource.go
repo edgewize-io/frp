@@ -16,12 +16,12 @@ package vhost
 
 import (
 	"bytes"
-	"github.com/fatedier/frp/pkg/util/version"
 	"io"
 	"net/http"
 	"os"
 
 	"github.com/fatedier/frp/pkg/util/log"
+	"github.com/fatedier/frp/pkg/util/version"
 )
 
 var NotFoundPagePath = ""

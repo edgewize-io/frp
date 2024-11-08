@@ -17,7 +17,6 @@ package sub
 import (
 	"context"
 	"fmt"
-	"github.com/fatedier/frp/pkg/util/version"
 	"io/fs"
 	"os"
 	"os/signal"
@@ -33,6 +32,7 @@ import (
 	v1 "github.com/fatedier/frp/pkg/config/v1"
 	"github.com/fatedier/frp/pkg/config/v1/validation"
 	"github.com/fatedier/frp/pkg/util/log"
+	"github.com/fatedier/frp/pkg/util/version"
 )
 
 var (

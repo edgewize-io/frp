@@ -17,9 +17,10 @@ package auth
 import (
 	"context"
 	"fmt"
+	"slices"
+
 	"github.com/coreos/go-oidc/v3/oidc"
 	"golang.org/x/oauth2/clientcredentials"
-	"slices"
 
 	v1 "github.com/fatedier/frp/pkg/config/v1"
 	"github.com/fatedier/frp/pkg/msg"
