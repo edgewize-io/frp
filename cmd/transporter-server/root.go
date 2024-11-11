@@ -46,8 +46,8 @@ func init() {
 }
 
 var rootCmd = &cobra.Command{
-	Use:   "frps",
-	Short: "frps is the server of frp (https://github.com/fatedier/frp)",
+	Use:   "transporter-server",
+	Short: "this is transporter-server",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if showVersion {
 			fmt.Println(version.Full())
@@ -107,7 +107,7 @@ func runServer(cfg *v1.ServerConfig) (err error) {
 		log.Infof("frps uses command line arguments for config")
 	}
 
-	svr, err := server.NewService(cfg)
+	svr, err := server.NewEdgewizeService(cfg)
 	if err != nil {
 		return err
 	}

@@ -89,20 +89,20 @@ func (svr *Service) apiReload(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		res.Code = 400
 		res.Msg = err.Error()
-		log.Warnf("reload frpc proxy config error: %s", res.Msg)
+		log.Warnf("reload transporter-client proxy config error: %s", res.Msg)
 		return
 	}
 	if _, err := validation.ValidateAllClientConfig(cliCfg, proxyCfgs, visitorCfgs); err != nil {
 		res.Code = 400
 		res.Msg = err.Error()
-		log.Warnf("reload frpc proxy config error: %s", res.Msg)
+		log.Warnf("reload transporter-client proxy config error: %s", res.Msg)
 		return
 	}
 
 	if err := svr.UpdateAllConfigurer(proxyCfgs, visitorCfgs); err != nil {
 		res.Code = 500
 		res.Msg = err.Error()
-		log.Warnf("reload frpc proxy config error: %s", res.Msg)
+		log.Warnf("reload transporter-client proxy config error: %s", res.Msg)
 		return
 	}
 	log.Infof("success reload conf")

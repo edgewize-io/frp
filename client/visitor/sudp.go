@@ -84,17 +84,17 @@ func (sv *SUDPVisitor) dispatcher() {
 		select {
 		case firstPacket = <-sv.sendCh:
 			if firstPacket == nil {
-				xl.Infof("frpc sudp visitor proxy is closed")
+				xl.Infof("transporter-client sudp visitor proxy is closed")
 				return
 			}
 		case <-sv.checkCloseCh:
-			xl.Infof("frpc sudp visitor proxy is closed")
+			xl.Infof("transporter-client sudp visitor proxy is closed")
 			return
 		}
 
 		visitorConn, err = sv.getNewVisitorConn()
 		if err != nil {
-			xl.Warnf("newVisitorConn to frps error: %v, try to reconnect", err)
+			xl.Warnf("newVisitorConn to transporter-server error: %v, try to reconnect", err)
 			continue
 		}
 
@@ -201,7 +201,7 @@ func (sv *SUDPVisitor) getNewVisitorConn() (net.Conn, error) {
 	xl := xlog.FromContextSafe(sv.ctx)
 	visitorConn, err := sv.helper.ConnectServer()
 	if err != nil {
-		return nil, fmt.Errorf("frpc connect frps error: %v", err)
+		return nil, fmt.Errorf("transporter-client connect transporter-server error: %v", err)
 	}
 
 	now := time.Now().Unix()

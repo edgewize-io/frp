@@ -95,6 +95,14 @@ func (sv *STCPVisitor) handleConn(userConn net.Conn) {
 		UseEncryption:  sv.cfg.Transport.UseEncryption,
 		UseCompression: sv.cfg.Transport.UseCompression,
 	}
+
+	// 支持单个frpc端口监听多个frpc目的服务
+	var head msg.ConnectHead
+	_ = msg.ReadMsgInto(userConn, &head)
+	if head.ServiceName != "" {
+		newVisitorConnMsg.ProxyName = head.ServiceName
+	}
+
 	err = msg.WriteMsg(visitorConn, newVisitorConnMsg)
 	if err != nil {
 		xl.Warnf("send newVisitorConnMsg to server error: %v", err)

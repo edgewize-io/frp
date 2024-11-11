@@ -355,7 +355,9 @@ func (svr *Service) Run(ctx context.Context) {
 		}()
 	}
 
-	go svr.HandleListener(svr.sshTunnelListener, true)
+	if svr.sshTunnelListener != nil {
+		go svr.HandleListener(svr.sshTunnelListener, true)
+	}
 
 	if svr.kcpListener != nil {
 		go svr.HandleListener(svr.kcpListener, false)
@@ -363,7 +365,10 @@ func (svr *Service) Run(ctx context.Context) {
 	if svr.quicListener != nil {
 		go svr.HandleQUICListener(svr.quicListener)
 	}
-	go svr.HandleListener(svr.websocketListener, false)
+	if svr.websocketListener != nil {
+		go svr.HandleListener(svr.websocketListener, false)
+	}
+
 	go svr.HandleListener(svr.tlsListener, false)
 
 	if svr.rc.NatHoleController != nil {
@@ -428,16 +433,22 @@ func (svr *Service) handleConnection(ctx context.Context, conn net.Conn, interna
 	_ = conn.SetReadDeadline(time.Time{})
 
 	switch m := rawMsg.(type) {
-	case *msg.Login:
-		// server plugin hook
+	// 修改接入流程。需要先读出登录的加密信息，然后解密得到登录的完整信息，最后才能按照原登录逻辑处理
+	case *msg.CryptoLogin:
+		login := svr.authVerifier.VerifyCrypto(m)
+		if login.Timestamp == 0 {
+			log.Errorf("verify login failed,%s,%d", m.Sign, m.TimeStamp)
+			conn.Close()
+			return
+		}
 		content := &plugin.LoginContent{
-			Login:         *m,
+			Login:         login,
 			ClientAddress: conn.RemoteAddr().String(),
 		}
 		retContent, err := svr.pluginManager.Login(content)
 		if err == nil {
-			m = &retContent.Login
-			err = svr.RegisterControl(conn, m, internal)
+			m1 := &retContent.Login
+			err = svr.RegisterControl(conn, m1, internal)
 		}
 
 		// If login failed, send error message there.
@@ -450,6 +461,11 @@ func (svr *Service) handleConnection(ctx context.Context, conn net.Conn, interna
 			})
 			conn.Close()
 		}
+	case *msg.Login:
+		// 禁止原生frp接入，不接受直接的登录信息输入
+		// server plugin hook
+		log.Warnf("Error message type for the new connection [%s]", conn.RemoteAddr().String())
+		conn.Close()
 	case *msg.NewWorkConn:
 		if err := svr.RegisterWorkConn(conn, m); err != nil {
 			conn.Close()

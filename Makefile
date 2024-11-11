@@ -4,17 +4,17 @@ LDFLAGS := -s -w
 
 all: env fmt build
 
-build: frps frpc
+build: router-server router-client
 
 env:
 	@go version
 
 # compile assets into binary file
 file:
-	rm -rf ./assets/frps/static/*
-	rm -rf ./assets/frpc/static/*
-	cp -rf ./web/frps/dist/* ./assets/frps/static
-	cp -rf ./web/frpc/dist/* ./assets/frpc/static
+	rm -rf ./assets/router-server/static/*
+	rm -rf ./assets/router-client/static/*
+	cp -rf ./web/router-server/dist/* ./assets/router-server/static
+	cp -rf ./web/router-client/dist/* ./assets/router-client/static
 
 fmt:
 	go fmt ./...
@@ -28,11 +28,11 @@ gci:
 vet:
 	go vet ./...
 
-frps:
-	env CGO_ENABLED=0 go build -trimpath -ldflags "$(LDFLAGS)" -tags frps -o bin/frps ./cmd/frps
+router-server:
+	env CGO_ENABLED=0 go build -trimpath -ldflags "$(LDFLAGS)" -o bin/router-server ./cmd/transporter-server
 
-frpc:
-	env CGO_ENABLED=0 go build -trimpath -ldflags "$(LDFLAGS)" -tags frpc -o bin/frpc ./cmd/frpc
+router-client:
+	env CGO_ENABLED=0 go build -trimpath -ldflags "$(LDFLAGS)" -o bin/router-client ./cmd/transporter-client
 
 test: gotest
 
@@ -49,23 +49,36 @@ e2e:
 e2e-trace:
 	DEBUG=true LOG_LEVEL=trace ./hack/run-e2e.sh
 
-e2e-compatibility-last-frpc:
+e2e-compatibility-last-router-client:
 	if [ ! -d "./lastversion" ]; then \
 		TARGET_DIRNAME=lastversion ./hack/download.sh; \
 	fi
-	FRPC_PATH="`pwd`/lastversion/frpc" ./hack/run-e2e.sh
+	FRPC_PATH="`pwd`/lastversion/router-client" ./hack/run-e2e.sh
 	rm -r ./lastversion
 
-e2e-compatibility-last-frps:
+e2e-compatibility-last-router-server:
 	if [ ! -d "./lastversion" ]; then \
 		TARGET_DIRNAME=lastversion ./hack/download.sh; \
 	fi
-	FRPS_PATH="`pwd`/lastversion/frps" ./hack/run-e2e.sh
+	FRPS_PATH="`pwd`/lastversion/router-server" ./hack/run-e2e.sh
 	rm -r ./lastversion
 
 alltest: vet gotest e2e
 	
 clean:
-	rm -f ./bin/frpc
-	rm -f ./bin/frps
+	rm -f ./bin/router-client
+	rm -f ./bin/router-server
 	rm -rf ./lastversion
+
+router-server-images:
+	docker build . --file build/server/Dockerfile --tag $(REPO)/router-server:$(TAG) --push
+
+router-client-images:
+	docker build . --file build/client/Dockerfile --tag $(REPO)/router-client:$(TAG)  --push
+
+image-all: router-server-images router-client-images
+
+# make docker REPO=harbor.dev.thingsdao.com/edgewize TAG=v0.1.13
+docker:
+	make build
+	make image-all

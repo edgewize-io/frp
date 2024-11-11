@@ -263,7 +263,10 @@ func (svr *Service) login() (conn net.Conn, connector Connector, err error) {
 		return
 	}
 
-	if err = msg.WriteMsg(conn, loginMsg); err != nil {
+	cryp := svr.authSetter.SetCrypto(loginMsg)
+	cryp.TimeStamp = time.Now().Unix()
+
+	if err = msg.WriteMsg(conn, &cryp); err != nil {
 		return
 	}
 

@@ -14,7 +14,7 @@
 
 package version
 
-var version = "0.59.0"
+var version = "edgewize-transporter:v0.0.1"
 
 func Full() string {
 	return version

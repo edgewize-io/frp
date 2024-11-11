@@ -43,15 +43,15 @@ var (
 )
 
 func init() {
-	rootCmd.PersistentFlags().StringVarP(&cfgFile, "config", "c", "./frpc.ini", "config file of frpc")
-	rootCmd.PersistentFlags().StringVarP(&cfgDir, "config_dir", "", "", "config directory, run one frpc service for each file in config directory")
-	rootCmd.PersistentFlags().BoolVarP(&showVersion, "version", "v", false, "version of frpc")
+	rootCmd.PersistentFlags().StringVarP(&cfgFile, "config", "c", "./client.ini", "config file of transporter-client")
+	rootCmd.PersistentFlags().StringVarP(&cfgDir, "config_dir", "", "", "config directory, run one transporter-client service for each file in config directory")
+	rootCmd.PersistentFlags().BoolVarP(&showVersion, "version", "v", false, "version of transporter-client")
 	rootCmd.PersistentFlags().BoolVarP(&strictConfigMode, "strict_config", "", true, "strict config parsing mode, unknown fields will cause an errors")
 }
 
 var rootCmd = &cobra.Command{
-	Use:   "frpc",
-	Short: "frpc is the client of frp (https://github.com/fatedier/frp)",
+	Use:   "transporter-client",
+	Short: "this is transporter-client",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if showVersion {
 			fmt.Println(version.Full())
@@ -87,7 +87,7 @@ func runMultipleClients(cfgDir string) error {
 			defer wg.Done()
 			err := runClient(path)
 			if err != nil {
-				fmt.Printf("frpc service error for config file [%s]\n", path)
+				fmt.Printf("transporter-client service error for config file [%s]\n", path)
 			}
 		}()
 		return nil
@@ -139,8 +139,8 @@ func startService(
 	log.InitLogger(cfg.Log.To, cfg.Log.Level, int(cfg.Log.MaxDays), cfg.Log.DisablePrintColor)
 
 	if cfgFile != "" {
-		log.Infof("start frpc service for config file [%s]", cfgFile)
-		defer log.Infof("frpc service for config file [%s] stopped", cfgFile)
+		log.Infof("start transporter-client service for config file [%s]", cfgFile)
+		defer log.Infof("transporter-client service for config file [%s] stopped", cfgFile)
 	}
 	svr, err := client.NewService(client.ServiceOptions{
 		Common:         cfg,
