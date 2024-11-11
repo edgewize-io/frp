@@ -436,13 +436,13 @@ func (svr *Service) handleConnection(ctx context.Context, conn net.Conn, interna
 	// 修改接入流程。需要先读出登录的加密信息，然后解密得到登录的完整信息，最后才能按照原登录逻辑处理
 	case *msg.CryptoLogin:
 		login := svr.authVerifier.VerifyCrypto(m)
-		if login == nil {
+		if login.Timestamp == 0 {
 			log.Errorf("verify login failed,%s,%d", m.Sign, m.TimeStamp)
 			conn.Close()
 			return
 		}
 		content := &plugin.LoginContent{
-			Login:         *login,
+			Login:         login,
 			ClientAddress: conn.RemoteAddr().String(),
 		}
 		retContent, err := svr.pluginManager.Login(content)
