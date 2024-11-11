@@ -30,14 +30,6 @@ var (
 	natHoleLocalAddr  string
 )
 
-func init() {
-	//rootCmd.AddCommand(natholeCmd)
-	//natholeCmd.AddCommand(natholeDiscoveryCmd)
-	//
-	//natholeCmd.PersistentFlags().StringVarP(&natHoleSTUNServer, "nat_hole_stun_server", "", "", "STUN server address for nathole")
-	//natholeCmd.PersistentFlags().StringVarP(&natHoleLocalAddr, "nat_hole_local_addr", "l", "", "local address to connect STUN server")
-}
-
 var natholeCmd = &cobra.Command{
 	Use:   "nathole",
 	Short: "Actions about nathole",

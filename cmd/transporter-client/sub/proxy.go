@@ -28,19 +28,13 @@ import (
 
 var proxyTypes = []v1.ProxyType{
 	v1.ProxyTypeTCP,
-	//v1.ProxyTypeUDP,
-	//v1.ProxyTypeTCPMUX,
 	v1.ProxyTypeHTTP,
 	v1.ProxyTypeHTTPS,
 	v1.ProxyTypeSTCP,
-	//v1.ProxyTypeSUDP,
-	//v1.ProxyTypeXTCP,
 }
 
 var visitorTypes = []v1.VisitorType{
 	v1.VisitorTypeSTCP,
-	//v1.VisitorTypeSUDP,
-	//v1.VisitorTypeXTCP,
 }
 
 func init() {

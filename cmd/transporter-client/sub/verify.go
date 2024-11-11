@@ -25,7 +25,7 @@ import (
 )
 
 func init() {
-	//rootCmd.AddCommand(verifyCmd)
+	rootCmd.AddCommand(verifyCmd)
 }
 
 var verifyCmd = &cobra.Command{
@@ -33,7 +33,7 @@ var verifyCmd = &cobra.Command{
 	Short: "Verify that the configures is valid",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if cfgFile == "" {
-			fmt.Println("frpc: the configuration file is not specified")
+			fmt.Println("transporter-client: the configuration file is not specified")
 			return nil
 		}
 
@@ -51,7 +51,7 @@ var verifyCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		fmt.Printf("frpc: the configuration file %s syntax is ok\n", cfgFile)
+		fmt.Printf("transporter-client: the configuration file %s syntax is ok\n", cfgFile)
 		return nil
 	},
 }

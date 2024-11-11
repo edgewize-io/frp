@@ -43,9 +43,9 @@ var (
 )
 
 func init() {
-	rootCmd.PersistentFlags().StringVarP(&cfgFile, "config", "c", "./frpc.ini", "config file of frpc")
-	rootCmd.PersistentFlags().StringVarP(&cfgDir, "config_dir", "", "", "config directory, run one frpc service for each file in config directory")
-	rootCmd.PersistentFlags().BoolVarP(&showVersion, "version", "v", false, "version of frpc")
+	rootCmd.PersistentFlags().StringVarP(&cfgFile, "config", "c", "./client.ini", "config file of transporter-client")
+	rootCmd.PersistentFlags().StringVarP(&cfgDir, "config_dir", "", "", "config directory, run one transporter-client service for each file in config directory")
+	rootCmd.PersistentFlags().BoolVarP(&showVersion, "version", "v", false, "version of transporter-client")
 	rootCmd.PersistentFlags().BoolVarP(&strictConfigMode, "strict_config", "", true, "strict config parsing mode, unknown fields will cause an errors")
 }
 
@@ -139,8 +139,8 @@ func startService(
 	log.InitLogger(cfg.Log.To, cfg.Log.Level, int(cfg.Log.MaxDays), cfg.Log.DisablePrintColor)
 
 	if cfgFile != "" {
-		log.Infof("start frpc service for config file [%s]", cfgFile)
-		defer log.Infof("frpc service for config file [%s] stopped", cfgFile)
+		log.Infof("start transporter-client service for config file [%s]", cfgFile)
+		defer log.Infof("transporter-client service for config file [%s] stopped", cfgFile)
 	}
 	svr, err := client.NewService(client.ServiceOptions{
 		Common:         cfg,
